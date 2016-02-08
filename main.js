@@ -32,11 +32,13 @@ TETRIS.Main = (function($, Playfield, BlockModule, Util){
 
   var _playLoop = function(){
     if (_stopBlock()){
-      Playfield.deadBlocks.push(_active);
+      Playfield.addDeadBlock(_active);
       _newBlock();
     } else {
       _active.moveDown();
     }
+
+    Playfield.clearLines();
     Playfield.draw(_active);
   };
 
