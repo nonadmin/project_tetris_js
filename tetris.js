@@ -77,18 +77,30 @@ TETRIS.BlockModule = (function(util){
 })(TETRIS.Util);
 
 
-TETRIS.ShapeModule = (function($, BlockModule){
+TETRIS.ShapeModule = (function($, Util, BlockModule){
   var _start = {posX: 100, posY: -80};
+  
   var _recipes = {1: [ {posX: _start.posX + 20, posY: _start.posY},
                        {posX: _start.posX + 20, posY: _start.posY - 20},
-                       {posX: _start.posX + 40, posY: _start.posY - 20}  ]
-                   };
+                       {posX: _start.posX + 40, posY: _start.posY - 20} ],
+                  2: [ {posX: _start.posX, posY: _start.posY - 20},
+                       {posX: _start.posX, posY: _start.posY - 40},
+                       {posX: _start.posX + 20, posY: _start.posY - 40} ],
+                  3: [ {posX: _start.posX - 20, posY: _start.posY},
+                       {posX: _start.posX - 20, posY: _start.posY - 20},
+                       {posX: _start.posX - 40, posY: _start.posY - 20} ],   
+                  4: [ {posX: _start.posX, posY: _start.posY - 20},
+                       {posX: _start.posX + 20, posY: _start.posY - 20},
+                       {posX: _start.posX + 20, posY: _start.posY} ],
+                  5: [ {posX: _start.posX, posY: _start.posY - 20},
+                       {posX: _start.posX, posY: _start.posY - 40},
+                       {posX: _start.posX, posY: _start.posY - 60} ]};    
 
   function Shape(){
     blocks = [];
     blocks.push(new BlockModule.Block(_start.posX, _start.posY));
 
-    $.each(_recipes[1], function(i, block){
+    $.each(_recipes[Util.rand(1,5)], function(i, block){
       blocks.push(new BlockModule.Block(block.posX, block.posY));
     });
 
@@ -124,4 +136,4 @@ TETRIS.ShapeModule = (function($, BlockModule){
     Shape: Shape
   };
 
-})($, TETRIS.BlockModule);
+})($, TETRIS.Util, TETRIS.BlockModule);
