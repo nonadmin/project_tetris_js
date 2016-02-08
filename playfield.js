@@ -1,7 +1,7 @@
 var TETRIS = TETRIS || {};
 
 
-TETRIS.Playfield = (function(Util){
+TETRIS.Playfield = (function($, Util){
   var deadBlocks = {};
   var _canvas;
   var ctx;
@@ -11,10 +11,10 @@ TETRIS.Playfield = (function(Util){
     ctx = _canvas.getContext('2d');
   };
 
-  var draw = function(active){
+  var draw = function(activeShape){
     ctx.clearRect(0,0,200,400);
 
-    active.draw(ctx);
+    activeShape.draw(ctx);
 
     var rows = Object.keys(deadBlocks);
     $.each(rows, function(j, row){
@@ -24,15 +24,17 @@ TETRIS.Playfield = (function(Util){
     });
   };
 
-  var addDeadBlock = function(block){
-    // associative array of deadblocks
-    if ( !(deadBlocks.hasOwnProperty(block.posY)) ){
-      deadBlocks[block.posY] = [];
-    }
-    deadBlocks[block.posY].push(block);
+  var addDeadBlocks = function(shape){
+    $.each(shape, function(i, block){
+      // associative array of deadblocks
+      if ( !(deadBlocks.hasOwnProperty(block.posY)) ){
+        deadBlocks[block.posY] = [];
+      }
+      deadBlocks[block.posY].push(block);
+    });
   };
 
-  var collision = function(block, proposedMove){
+  var _collision = function(block, proposedMove){
     var testBlock;
 
     if (proposedMove === 'left'){
@@ -47,43 +49,48 @@ TETRIS.Playfield = (function(Util){
     return collision;
   }; 
 
-  var validMove = function(block, proposedMove){
-    var valid = false;
-    if ( proposedMove === 'left' &&
-         block.posX >= 20 &&
-         !(collision(block, proposedMove))){
-      valid = true;
-    } else if( proposedMove === 'right' &&
-               block.posX <= _canvas.width - 40 &&
-               !(collision(block, proposedMove)) ){
-      valid = true;
-    } else if ( proposedMove === 'down' &&
-                block.posY <= _canvas.height - 40 &&
-                !(collision(block, proposedMove)) ){
-      valid = true;
-    }
-    return valid;
+  var validMove = function(shape, proposedMove){
+    var isValid = true;
+
+    $.each(shape, function(i, block){
+      if ( proposedMove === 'left' &&
+           block.posX <= 0 ||
+           _collision(block, proposedMove) ){
+        isValid = false;
+      } else if( proposedMove === 'right' &&
+                 block.posX >= _canvas.width - 20 ||
+                 _collision(block, proposedMove) ){
+        isValid = false;
+      } else if ( proposedMove === 'down' &&
+                  block.posY >= _canvas.height - 20 ||
+                  _collision(block, proposedMove) ){
+        isValid = false;
+      }
+    });
+
+    return isValid;
   };
 
-
-  var _shiftBlocks = function(mult){
-    var shiftAmount = 20 * mult;
+  var _shiftBlocks = function(rowsToClear){
+    var shiftAmount = 20 * rowsToClear.length;
+    var clearBelow = Math.max(...rowsToClear);
     var rows = Object.keys(deadBlocks);
 
+    //iterate backwards through deadBlock rows, shifting down
     for(var i=rows.length-1; i>=0; i--){
       var row = rows[i];
-      var newRow = parseInt(row, 10) + shiftAmount;
-      deadBlocks[newRow] = deadBlocks[row];
-      console.log('shifting to ' + newRow)
-      delete deadBlocks[row];
+      if (row < clearBelow){
+        var newRow = parseInt(row, 10) + shiftAmount;
+        deadBlocks[newRow] = deadBlocks[row];
+        console.log('shifting to ' + newRow);
+        delete deadBlocks[row];
 
-      $.each(deadBlocks[newRow], function(j, block){
-        block.posY = newRow;
-      });
+        $.each(deadBlocks[newRow], function(j, block){
+          block.posY = newRow;
+        });
+      }
     }
-
   };
-
 
   var clearLines = function(){
     var rows = Object.keys(deadBlocks);
@@ -101,7 +108,7 @@ TETRIS.Playfield = (function(Util){
         delete deadBlocks[fullRow];
       });
 
-      _shiftBlocks(rowsToClear.length);
+      _shiftBlocks(rowsToClear);
     }
   };
 
@@ -111,7 +118,7 @@ TETRIS.Playfield = (function(Util){
     ctx: ctx,
     deadBlocks: deadBlocks,
     validMove: validMove,
-    addDeadBlock: addDeadBlock,
+    addDeadBlocks: addDeadBlocks,
     clearLines: clearLines
   };
-})(TETRIS.Util);
+})($, TETRIS.Util);

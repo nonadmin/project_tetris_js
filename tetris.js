@@ -40,11 +40,10 @@ TETRIS.Util = (function(){
 TETRIS.BlockModule = (function(util){
   var _color = "#f00";
 
-  function Block(){
-    console.log("new");
+  function Block(posX, posY){
     this.size = 20;
-    this.posX = 100;
-    this.posY = -this.size;
+    this.posX = posX || 100;
+    this.posY = posY || -this.size;
     this.color = _color;
   }
 
@@ -76,3 +75,53 @@ TETRIS.BlockModule = (function(util){
 
 
 })(TETRIS.Util);
+
+
+TETRIS.ShapeModule = (function($, BlockModule){
+  var _start = {posX: 100, posY: -80};
+  var _recipes = {1: [ {posX: _start.posX + 20, posY: _start.posY},
+                       {posX: _start.posX + 20, posY: _start.posY - 20},
+                       {posX: _start.posX + 40, posY: _start.posY - 20}  ]
+                   };
+
+  function Shape(){
+    blocks = [];
+    blocks.push(new BlockModule.Block(_start.posX, _start.posY));
+
+    $.each(_recipes[1], function(i, block){
+      blocks.push(new BlockModule.Block(block.posX, block.posY));
+    });
+
+    this.blocks = blocks;
+  }
+
+  Shape.prototype.allDown = function(){
+    $.each(blocks, function(i, block){
+      block.moveDown();
+    });
+  };
+
+  Shape.prototype.allLeft = function(){
+    $.each(blocks, function(i, block){
+      block.moveLeft();
+    });
+  };
+
+  Shape.prototype.allRight = function(){
+    $.each(blocks, function(i, block){
+      block.moveRight();
+    });
+  };
+
+
+  Shape.prototype.draw = function(ctx){
+    $.each(blocks, function(i, block){
+      block.draw(ctx);
+    });
+  };
+
+  return {
+    Shape: Shape
+  };
+
+})($, TETRIS.BlockModule);
