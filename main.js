@@ -1,8 +1,8 @@
 var TETRIS = TETRIS || {};
 
 
-TETRIS.Main = (function($, Playfield, ShapeModule, Util){
-  var _active;
+TETRIS.Main = (function($, Logic, Playfield, ShapeModule, Util){
+  var _activeShape;
   var _loopID;
 
   var init = function(){
@@ -13,10 +13,10 @@ TETRIS.Main = (function($, Playfield, ShapeModule, Util){
 
   var _bindKeys = function(){
     $('body').on('keyup', function(e){   
-      if (e.which === 37 && Playfield.validMove(_active.blocks, 'left')){
-        _active.allLeft();
-      } else if (e.which === 39 && Playfield.validMove(_active.blocks, 'right')){
-        _active.allRight();
+      if (e.which === 37 && Logic.validMove(_activeShape.blocks, 'left')){
+        _activeShape.allLeft();
+      } else if (e.which === 39 && Logic.validMove(_activeShape.blocks, 'right')){
+        _activeShape.allRight();
       }
     });
   };
@@ -27,25 +27,24 @@ TETRIS.Main = (function($, Playfield, ShapeModule, Util){
   };
 
   var _newShape = function(){
-    _active = new ShapeModule.Shape();
-    //_active = new BlockModule.Block();
+    _activeShape = new ShapeModule.Shape();
   };
 
   var _playLoop = function(){
     if (_stopBlock()){
-      Playfield.addDeadBlocks(_active.blocks);
+      Logic.addDeadBlocks(_activeShape.blocks);
       _newShape();
     } else {
-      _active.allDown();
+      _activeShape.allDown();
     }
 
-    Playfield.clearLines();
-    Playfield.draw(_active);
+    Logic.clearLines();
+    Playfield.draw(_activeShape, Logic.deadBlocks);
   };
 
   var _stopBlock = function(){
     var stop = false;
-    if ( !(Playfield.validMove(_active.blocks, 'down')) ){
+    if ( !(Logic.validMove(_activeShape.blocks, 'down')) ){
       stop = true;
     }
     return stop;
@@ -54,7 +53,7 @@ TETRIS.Main = (function($, Playfield, ShapeModule, Util){
   return {
     init: init
   };
-})($, TETRIS.Playfield, TETRIS.ShapeModule, TETRIS.Util);
+})($, TETRIS.Logic, TETRIS.Playfield, TETRIS.ShapeModule, TETRIS.Util);
 
 
 $( document ).ready(function(){

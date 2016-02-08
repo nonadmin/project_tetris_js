@@ -1,42 +1,6 @@
 var TETRIS = TETRIS || {}
 
 
-TETRIS.Util = (function(){
-  var rand = function(min, max){
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-
-  var touch = function(obj, collection){
-    var isTouching = false;
-    var rows = Object.keys(collection);
-
-    $.each(rows, function(j, row){
-
-      $.each(collection[row], function(i, compareObj){
-          if (obj.posX < compareObj.posX + compareObj.size &&
-              obj.posX + obj.size > compareObj.posX &&
-              obj.posY < compareObj.posY + compareObj.size &&
-              obj.posY + obj.size > compareObj.posY) {
-            isTouching = true;
-            return false;
-          }
-
-      });    
-    });
-
-    return isTouching;
-  };
-
-  return {
-    rand: rand,
-    touch: touch
-  };
-})();
-
-//200x400, 20 block size
-
-
 TETRIS.BlockModule = (function(util){
   var _color = "#f00";
 
@@ -79,7 +43,7 @@ TETRIS.BlockModule = (function(util){
 
 TETRIS.ShapeModule = (function($, Util, BlockModule){
   var _start = {posX: 100, posY: -80};
-  
+
   var _recipes = {1: [ {posX: _start.posX + 20, posY: _start.posY},
                        {posX: _start.posX + 20, posY: _start.posY - 20},
                        {posX: _start.posX + 40, posY: _start.posY - 20} ],
