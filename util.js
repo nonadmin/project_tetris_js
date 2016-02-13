@@ -14,10 +14,10 @@ TETRIS.Util = (function(){
     $.each(rows, function(j, row){
 
       $.each(collection[row], function(i, compareObj){
-          if (obj.posX < compareObj.posX + compareObj.size &&
-              obj.posX + obj.size > compareObj.posX &&
-              obj.posY < compareObj.posY + compareObj.size &&
-              obj.posY + obj.size > compareObj.posY) {
+          if (obj.posX < compareObj.posX + compareObj.width &&
+              obj.posX + obj.width > compareObj.posX &&
+              obj.posY < compareObj.posY + compareObj.height &&
+              obj.posY + obj.height > compareObj.posY) {
             isTouching = true;
             return false;
           }

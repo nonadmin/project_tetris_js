@@ -1,7 +1,7 @@
 var TETRIS = TETRIS || {};
 
 
-TETRIS.Main = (function($, Logic, Playfield, ShapeModule, Util){
+TETRIS.Main = (function($, Grid, Playfield, ShapeModule, Util){
   var _activeShape;
   var _loopID;
 
@@ -13,15 +13,18 @@ TETRIS.Main = (function($, Logic, Playfield, ShapeModule, Util){
 
   var _bindKeys = function(){
     $('body').on('keyup', function(e){   
-      if (e.which === 37 && Logic.validMove(_activeShape.blocks, 'left')){
-        _activeShape.allLeft();
-      } else if (e.which === 39 && Logic.validMove(_activeShape.blocks, 'right')){
-        _activeShape.allRight();
+      if (e.which === 37 && Grid.tryMove(_activeShape.coords, 'left')){
+        _activeShape.moveLeft();
+      } else if (e.which === 39 && Grid.tryMove(_activeShape.coords, 'right')){
+        _activeShape.moveRight();
+      } else if (e.which === 32 && Grid.tryMove(_activeShape.coords, 'rotate')){
+        _activeShape.rotate();
       }
     });
   };
 
   var _startGame = function(){
+    Grid.blankGrid();
     _newShape();
     _loopID = window.setInterval(_playLoop, 200);
   };
@@ -31,29 +34,44 @@ TETRIS.Main = (function($, Logic, Playfield, ShapeModule, Util){
   };
 
   var _playLoop = function(){
-    if (_stopBlock()){
-      Logic.addDeadBlocks(_activeShape.blocks);
+    if (_stopShape()){
+
+      if (_gameOver()){
+        clearInterval(_loopID);
+        _startGame();
+        return false;
+      }
+
+      _activeShape.saveToGrid();
       _newShape();
     } else {
-      _activeShape.allDown();
+      _activeShape.moveDown();
     }
 
-    Logic.clearLines();
-    Playfield.draw(_activeShape, Logic.deadBlocks);
+    Grid.clearLines();
+    Playfield.draw(_activeShape);
   };
 
-  var _stopBlock = function(){
+  var _stopShape = function(){
     var stop = false;
-    if ( !(Logic.validMove(_activeShape.blocks, 'down')) ){
+    if ( !(Grid.tryMove(_activeShape.coords, 'down')) ){
       stop = true;
     }
+    //console.log(stop);
     return stop;
+  };
+
+  var _gameOver = function(){
+    topRow = Grid.getGrid()[2];
+    if( topRow.some(function(slot){ return slot; }) ){
+      return true;
+    }
   };
 
   return {
     init: init
   };
-})($, TETRIS.Logic, TETRIS.Playfield, TETRIS.ShapeModule, TETRIS.Util);
+})($, TETRIS.Grid, TETRIS.Playfield, TETRIS.ShapeModule, TETRIS.Util);
 
 
 $( document ).ready(function(){

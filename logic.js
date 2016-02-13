@@ -4,6 +4,14 @@ var TETRIS = TETRIS || {};
 TETRIS.Logic = (function($, Util){
   var deadBlocks = {};
 
+  var getDeadBlocks = function(){
+    return deadBlocks;
+  };
+
+  var clearDeadBlocks = function(){
+    deadBlocks = {};
+  };
+
   var addDeadBlocks = function(shape){
     $.each(shape, function(i, block){
       // associative array of deadblocks
@@ -15,18 +23,23 @@ TETRIS.Logic = (function($, Util){
   };
 
   var _collision = function(block, proposedMove){
-    var testBlock;
+    var testBlock = {width: 20, height: 20};
+    var gutter = {0: {posX: 0, posY: -120, width: 200, height: 520 }};
 
     if (proposedMove === 'left'){
-      testBlock = {posX: block.posX - 20, posY: block.posY, size: block.size};
+      testBlock.posX = block.posX - 20;
+      testBlock.posY = block.posY;
     } else if (proposedMove === 'right'){
-      testBlock = {posX: block.posX + 20, posY: block.posY, size: block.size};
+      testBlock.posX = block.posX + 20;
+      testBlock.posY = block.posY;
     } else if (proposedMove === 'down'){
-      testBlock = {posX: block.posX, posY: block.posY + 20, size: block.size};
+      testBlock.posX = block.posX;
+      testBlock.posY = block.posY + 20;
     }
 
+    var outOfGutter = !(Util.touch(testBlock, [gutter]));
     var collision = Util.touch(testBlock, deadBlocks);
-    return collision;
+    return (collision || outOfGutter);
   }; 
 
   var validMove = function(shape, proposedMove){
@@ -34,15 +47,12 @@ TETRIS.Logic = (function($, Util){
 
     $.each(shape, function(i, block){
       if ( proposedMove === 'left' &&
-           block.posX <= 0 ||
            _collision(block, proposedMove) ){
         isValid = false;
       } else if( proposedMove === 'right' &&
-                 block.posX >= 180 ||
                  _collision(block, proposedMove) ){
         isValid = false;
       } else if ( proposedMove === 'down' &&
-                  block.posY >= 380 ||
                   _collision(block, proposedMove) ){
         isValid = false;
       }
@@ -93,7 +103,8 @@ TETRIS.Logic = (function($, Util){
   };
 
   return {
-    deadBlocks: deadBlocks,
+    getDeadBlocks: getDeadBlocks,
+    clearDeadBlocks: clearDeadBlocks,
     validMove: validMove,
     addDeadBlocks: addDeadBlocks,
     clearLines: clearLines

@@ -1,7 +1,7 @@
 var TETRIS = TETRIS || {};
 
 
-TETRIS.Playfield = (function($, Util){
+TETRIS.Playfield = (function($, Util, Grid){
   var _canvas;
   var ctx;
 
@@ -10,22 +10,36 @@ TETRIS.Playfield = (function($, Util){
     ctx = _canvas.getContext('2d');
   };
 
-  var draw = function(activeShape, deadBlocks){
+  var draw = function(activeShape){
+    var grid = Grid.getGrid();
     ctx.clearRect(0,0,200,400);
+    ctx.translate(0, -80);
 
-    activeShape.draw(ctx);
-    
-    var rows = Object.keys(deadBlocks);
+    var rows = Object.keys(grid);
     $.each(rows, function(j, row){
-      $.each(deadBlocks[row], function(i, block){
-        block.draw(ctx);
+      $.each(grid[row], function(x, block){
+        if (block){
+          _drawBlock(block.color, x, row);
+        }
       });
     });
+
+    $.each(activeShape.coords, function(i, block){
+      _drawBlock(activeShape.color, block.x, block.y);
+    });
+
+    ctx.translate(0, 80);
+  };
+
+  var _drawBlock = function(color, x, y){
+    ctx.beginPath();
+    ctx.rect(x * 20, y * 20, 20, 20);
+    ctx.fillStyle = color;
+    ctx.fill();
   };
 
   return {
     init: init,
     draw: draw,
-    ctx: ctx
   };
-})($, TETRIS.Util);
+})($, TETRIS.Util, TETRIS.Grid);
