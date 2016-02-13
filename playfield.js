@@ -36,6 +36,9 @@ TETRIS.Playfield = (function($, Util, Grid){
     ctx.rect(x * 20, y * 20, 20, 20);
     ctx.fillStyle = color;
     ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
   };
 
   return {

@@ -2,6 +2,8 @@ var TETRIS = TETRIS || {}
 
 
 TETRIS.ShapeModule = (function($, Util, BlockModule, Grid){
+  var _colors = ["#F44336", "#9C27B0", "#2196F3", "#4CAF50", "#FFEB3B", "#FF9800"]
+
   var _start = {x: 4, y: 2};
 
   var _recipes = {1: [ {x: _start.x + 1, y: _start.y},
@@ -27,7 +29,7 @@ TETRIS.ShapeModule = (function($, Util, BlockModule, Grid){
       coords.push({x: block.x, y: block.y});
     });
 
-    this.color = "#f00";
+    this.color = _colors[Util.rand(0,3)];
     this.coords = coords;
   }
 
@@ -58,7 +60,15 @@ TETRIS.ShapeModule = (function($, Util, BlockModule, Grid){
     });
   };
 
-  Shape.prototype.rotate = function(){};
+  Shape.prototype.rotate = function(){
+    var pivot = this.coords[2]; // rotate around third block in coords
+
+    $.each(this.coords, function(i, blockCoords){
+      newCoords = Util.rotate(pivot.x, pivot.y, blockCoords.x, blockCoords.y);
+      blockCoords.x = newCoords.x;
+      blockCoords.y = newCoords.y;
+    });
+  };
 
   return {
     Shape: Shape

@@ -1,7 +1,7 @@
 var TETRIS = TETRIS || {};
 
 
-TETRIS.Grid = (function($){
+TETRIS.Grid = (function($, Util){
   var grid;
 
   var getGrid = function(){
@@ -17,14 +17,10 @@ TETRIS.Grid = (function($){
   };
 
   var _validMove = function(x,y){
-    if (x >= 0 && x <= 9 && y >= 0 && y <= 23) {
-      if (grid[y][x] === undefined) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
+    if (x >= 0 && x <= 9 && 
+        y >= 0 && y <= 23 && 
+        grid[y][x] === undefined) {
+      return true;
     }
   };
 
@@ -41,7 +37,11 @@ TETRIS.Grid = (function($){
         isValid.push( _validMove(tryCoords.x + 1, tryCoords.y) );
       } else if ( proposedMove === 'down' ){
         isValid.push( _validMove(tryCoords.x, tryCoords.y + 1) );
-      }      
+      } else if (proposedMove === 'rotate' ){
+        var pivot = shapeCoords[2];
+        tryCoords = Util.rotate(pivot.x, pivot.y, blockCoords.x, blockCoords.y);
+        isValid.push( _validMove(tryCoords.x, tryCoords.y) );
+      }  
     });
 
     //console.log("valid: " + valid);
@@ -78,6 +78,6 @@ TETRIS.Grid = (function($){
     getGrid: getGrid
   };
 
-})($);
+})($, TETRIS.Util);
 
 // var grid = ['a', 'a']
