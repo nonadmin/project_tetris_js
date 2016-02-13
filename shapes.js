@@ -20,12 +20,15 @@ TETRIS.ShapeModule = (function($, Util, BlockModule, Grid){
                        {x: _start.x + 1, y: _start.y} ],
                   5: [ {x: _start.x, y: _start.y - 1},
                        {x: _start.x, y: _start.y - 2},
-                       {x: _start.x, y: _start.y - 3} ]};    
+                       {x: _start.x - 1, y: _start.y - 2} ], 
+                  6: [ {x: _start.x, y: _start.y - 1},
+                       {x: _start.x, y: _start.y - 2},
+                       {x: _start.x, y: _start.y - 3} ]};       
 
   function Shape(){
     var coords = [{x: _start.x, y: _start.y}];
 
-    $.each(_recipes[Util.rand(1,5)], function(i, block){
+    $.each(_recipes[Util.rand(1,6)], function(i, block){
       coords.push({x: block.x, y: block.y});
     });
 
